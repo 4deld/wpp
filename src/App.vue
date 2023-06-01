@@ -10,6 +10,12 @@ function movetonext() {
     document.getElementById(String(x.value))?.focus()
   }
 }
+function xtov(g: number) {
+  if (g === 1 || g === 2) { return g * 2 }
+  if (g === 0 || g === 5) { return g }
+  if (g === 3) { return 1 }
+  return 3
+}
 function updateinput(e: Event) {
   if (e.data != undefined) {
     s.value += e.data
@@ -30,7 +36,7 @@ function updateinput(e: Event) {
         key.value = 1
       }
       if (x.value === 5) {
-        p1p2_names.value[x.value] = Hangul.assemble(s.value.slice(-2))
+        p1p2_names.value[xtov(x.value)] = Hangul.assemble(s.value.slice(-2))
         console.log(p1p2_names.value)
       }
 
@@ -41,12 +47,12 @@ function updateinput(e: Event) {
       if (x.value === 0) {
         let arr = Hangul.disassemble(s.value.slice(-1))
         if (arr.length > 3) {
-          p1p2_names.value[x.value] = Hangul.assemble(arr.slice(0,3))
+          p1p2_names.value[xtov(x.value)] = Hangul.assemble(arr.slice(0, 3))
           s.value = s.value.slice(0, s.value.length - 1)
           s.value += arr[3]
         }
         else {
-          p1p2_names.value[x.value] = s.value.slice(-1)
+          p1p2_names.value[xtov(x.value)] = s.value.slice(-1)
         }
 
       }
@@ -56,24 +62,26 @@ function updateinput(e: Event) {
           t = s.value.slice(-2, -1)
         }
 
-        p1p2_names.value[x.value] = t
+        p1p2_names.value[xtov(x.value)] = t
       }
       else {
-        p1p2_names.value[x.value + 1] = s.value.slice(-1)
+        p1p2_names.value[xtov(x.value + 1)] = s.value.slice(-1)
       }
-      x.value += 1
+      if (x.value < 5) {
+        x.value += 1
+      }
       movetonext()
 
     }
     if (Hangul.disassemble(s.value.slice(-1)).length == 2) {
       console.log(Hangul.disassemble(s.value.slice(-1)))
       let arr = Hangul.disassemble(s.value.slice(-1))
-      if (Hangul.isConsonant(arr[1])) {
+      if (Hangul.isConsonant(arr[1])) { //겹받침 제거
         s.value = s.value.slice(0, s.value.length - 1)
         s.value += arr[1]
       }
       else {
-        p1p2_names.value[x.value] = s.value.slice(-1)
+        p1p2_names.value[xtov(x.value)] = s.value.slice(-1)
         key.value = 0
       }
     }
@@ -94,6 +102,17 @@ function updateinput(e: Event) {
 //   if(Hangul.disassemble(newv.slice(-1)).length==2){
 //   }
 // })
+
+watch(x,()=> {
+  setTimeout(()=>{
+    document.getElementById(x.value-1).disabled = 'true'
+  },100)
+  if(x.value===5){
+    setTimeout(()=>{
+    document.getElementById(5).disabled = 'true'
+  },1000)
+  }
+})
 </script>
 
 <template>
@@ -101,11 +120,15 @@ function updateinput(e: Event) {
     <div class="title">이름 궁합 점수</div>
     <div class="inputs">
       <input id="0" type="text" :value="p1p2_names[0]" v-on:input="updateinput">
-      <input id="3" type="text" :value="p1p2_names[3]" v-on:input="updateinput">
-      <input id="1" type="text" :value="p1p2_names[1]" v-on:input="updateinput">
-      <input id="4" type="text" :value="p1p2_names[4]" v-on:input="updateinput">
-      <input id="2" type="text" :value="p1p2_names[2]" v-on:input="updateinput">
+      <input id="3" type="text" :value="p1p2_names[1]" v-on:input="updateinput">
+      <input id="1" type="text" :value="p1p2_names[2]" v-on:input="updateinput">
+      <input id="4" type="text" :value="p1p2_names[3]" v-on:input="updateinput">
+      <input id="2" type="text" :value="p1p2_names[4]" v-on:input="updateinput">
       <input id="5" type="text" :value="p1p2_names[5]" v-on:input="updateinput">
+    </div>
+    <div>{{ p1p2_names }}</div>
+    <div>
+      <div></div>
     </div>
   </div>
 </template>
