@@ -2,14 +2,55 @@
 import * as Hangul from 'hangul-js';
 import { ref, onMounted, watch } from 'vue'
 const p1p2_names = ref([''])
+const namestonumber=ref([[]])
 const s = ref("")
 const key = ref(-1)
 const x = ref(0)
+onMounted(() => {
+  document.getElementById('0')?.focus()
+})
+const Consonant = {
+  'ㄱ': 2,
+  "ㄴ": 2,
+  "ㄷ": 3,
+  "ㄹ": 1,
+  "ㅁ": 3,
+  "ㅂ": 2,
+  "ㅅ": 4,
+  "ㅇ": 4,
+  "ㅈ": 4,
+  "ㅊ": 4,
+  "ㅋ": 2,
+  "ㅌ": 4,
+  "ㅍ": 4,
+  "ㅎ": 4
+};
+const Vowel = {
+  "ㅏ":3,
+  "ㅐ":4,
+  "ㅑ":3,
+  "ㅓ":2,
+  "ㅔ":2,
+  "ㅖ":4,
+  "ㅕ":2,
+  "ㅗ":3,
+  "ㅛ":2,
+  "ㅜ":2,
+  "ㅠ":2,
+  "ㅡ":1,
+  "ㅣ":1
+}
+type Values<T> = T[keyof T]
+function transform(s:string) {
+  let arr = Hangul.disassemble(s)
+  return Consonant[arr[0]]+Vowel[arr[1]]+(arr.length>2?Consonant[arr[2]]:0)
+}
 function movetonext() {
   if (x.value < 6) {
     document.getElementById(String(x.value))?.focus()
   }
 }
+
 function xtov(g: number) {
   if (g === 1 || g === 2) { return g * 2 }
   if (g === 0 || g === 5) { return g }
@@ -103,16 +144,19 @@ function updateinput(e: Event) {
 //   }
 // })
 
-watch(x,()=> {
-  setTimeout(()=>{
-    document.getElementById(x.value-1).disabled = 'true'
-  },100)
-  if(x.value===5){
-    setTimeout(()=>{
-    document.getElementById(5).disabled = 'true'
-  },1000)
+watch(x, () => {
+  setTimeout(() => {
+    document.getElementById(x.value - 1).disabled = 'true'
+    namestonumber.value[0][xtov(x.value-1)]=transform(p1p2_names.value[xtov(x.value-1)])
+  }, 100)
+  if (x.value === 5) {
+    setTimeout(() => {
+      document.getElementById(5).disabled = 'true'
+      namestonumber.value[0][5]=transform(p1p2_names.value[5])
+    }, 1000)
   }
 })
+
 </script>
 
 <template>
@@ -127,6 +171,7 @@ watch(x,()=> {
       <input id="5" type="text" :value="p1p2_names[5]" v-on:input="updateinput">
     </div>
     <div>{{ p1p2_names }}</div>
+    <div>{{ namestonumber }}</div>
     <div>
       <div></div>
     </div>
