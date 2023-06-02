@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import "./assets/style.css"
 import * as Hangul from 'hangul-js';
 import { ref, onMounted, watch } from 'vue'
 const p1p2_names = ref([''])
@@ -66,10 +67,8 @@ function xtov(g: number) {
 function updateinput(e: Event) { //실시간으로 입력하는 한글을 event를 통해 볼 수 있음
   if (e.data != undefined) { //undefined가 아닌 경우
     s.value += e.data //문자열에 더해서 저장
-    console.log(s.value)
     if (key.value === -1) { //자음 + 모음으로 이루어진 경우
       if (Hangul.isConsonant(s.value.slice(-2, -1)) && Hangul.isVowel(s.value.slice(-1))) {
-        console.log(-1, s.value.slice(-2))
         let t = Hangul.assemble(s.value.slice(-2))
         s.value = s.value.slice(0, s.value.length - 2)
         s.value += t
@@ -78,7 +77,6 @@ function updateinput(e: Event) { //실시간으로 입력하는 한글을 event�
     }
 
     if (key.value === 0) {
-      console.log(0, s.value)
       //한글의 특성상 length=2에서 최소 2개를 더 받아야 무슨 문자인지 판별할 수 있기때문에 단계를나눔
       //마지막글자는 최소2개를더받는게불가능해서 일단 받는대로 다 합침
       if (x.value === 5 || Hangul.isVowel(s.value.slice(-1))) {
@@ -92,7 +90,6 @@ function updateinput(e: Event) { //실시간으로 입력하는 한글을 event�
         p1p2_names.value[xtov(x.value)] = t
         s.value = s.value.slice(0, s.value.length - 1)
         s.value += p1p2_names.value[xtov(x.value)]
-        console.log(p1p2_names.value)
       }
       else if (s.value.slice(-1) != s.value.slice(-2, -1)) {
         key.value = 1
@@ -106,11 +103,9 @@ function updateinput(e: Event) { //실시간으로 입력하는 한글을 event�
       }
     }
     else if (key.value === 1) {
-      console.log(1, s.value)
       key.value = -1
       if (x.value === 5) { //마지막글자는 최소2개를더받는게불가능해서 일단 받는대로 다 합침
         p1p2_names.value[xtov(x.value)] = Hangul.assemble(s.value.slice(-3))
-        console.log(p1p2_names.value)
       }
       else if (x.value === 0) { //첫번째글자
         let arr = Hangul.disassemble(s.value.slice(-1))
@@ -126,7 +121,6 @@ function updateinput(e: Event) { //실시간으로 입력하는 한글을 event�
       }
       //마지막이 자음 -> 종성이 존재하는 경우
       else if (Hangul.isConsonant(s.value.slice(-1))) {
-        console.log("asdfasdf")
         let t = Hangul.assemble(s.value.slice(-3, -1))
         if (t.length != 1) {
           t = s.value.slice(-2, -1)
@@ -147,7 +141,6 @@ function updateinput(e: Event) { //실시간으로 입력하는 한글을 event�
     }
     //자음+모음 혹은 자음+자음 혹은 모음+모음으로 이루어진 경우
     if (Hangul.disassemble(s.value.slice(-1)).length == 2) {
-      console.log(Hangul.disassemble(s.value.slice(-1)))
       let arr = Hangul.disassemble(s.value.slice(-1))
       if (Hangul.isConsonant(arr[1])) { //겹받침일 때 제거
         s.value = s.value.slice(0, s.value.length - 1)
@@ -160,21 +153,6 @@ function updateinput(e: Event) { //실시간으로 입력하는 한글을 event�
     }
   }
 }
-// watch(p1_name.value, (newv, oldv) => {
-//   for(var i=0; i<p1_name.value.length; i++){
-//     if(p1_name.value[i].length>1){
-//       p1_name.value[i+1]=p1_name.value[i].slice(-1);
-//       p1_name.value[i]=p1_name.value[i].slice(0,1);
-//       movetonext()
-//     }
-//   }
-// })
-// watch(s,(newv,oldv)=>{
-//   console.log(newv,oldv)
-//   console.log(Hangul.disassemble(newv.slice(-1)))
-//   if(Hangul.disassemble(newv.slice(-1)).length==2){
-//   }
-// })
 
 watch(x, () => {
   setTimeout(() => {
@@ -242,92 +220,3 @@ function redo() {
   </div>
 </template>
 
-<style>
-body {
-  margin: 0;
-  box-sizing: border-box;
-  width: 100vw;
-  height: 100vh;
-  user-select: none;
-  overflow: hidden;
-}
-
-.title {
-  font-size: 4em;
-  margin: 1.8% auto;
-}
-
-#layout {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.inputs {
-  display: flex;
-  width: 50vw;
-  height: 10vh;
-}
-
-input {
-  text-align: center;
-  font-size: 3em;
-  margin: auto;
-  width: 5vw;
-  height: 9vh;
-}
-
-.outer_for {
-  display: flex;
-}
-
-.inner_for {
-  display: flex;
-  font-size: 3.5em;
-  margin: 1.8% auto;
-}
-
-.rst {
-  margin-top: 1.8%;
-  display: flex;
-  font-size: 4em;
-}
-
-.output {
-  display: flex;
-}
-
-.re {
-  position: fixed;
-  top: 50vh;
-  right: 10vw;
-  font-size: 3em;
-}
-.mobile{
-    display: none;
-}
-.mobiletext{
-    padding:20px;
-}
-@media (max-width: 912px) {
-    .mobile{
-        display: flex;
-        width: 100vw;
-        height: 100vh;
-        align-items: center;
-        justify-content: center;
-    }
-    #layout{
-        display: none;
-    }
-    .mobiletext{
-        font-size: 26px;
-    }
-}
-
-@media (max-width:600px){
-    .mobiletext{
-        font-size: 18px;
-    }
-}
-</style>
