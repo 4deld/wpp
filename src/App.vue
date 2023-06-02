@@ -190,7 +190,7 @@ function redo() {
       <input id="2" type="text" :value="p1p2_names[4]" v-on:input="updateinput">
       <input id="5" type="text" :value="p1p2_names[5]" v-on:input="updateinput">
     </div>
-    <div class="outer_for" :style="'width: ' + (v.length - 1) * 10 + 'vw;'" v-for="v in names_to_number">
+    <div v-if="names_to_number[4][1] != null" class="outer_for" :style="'width: ' + (v.length - 1) * 10 + 'vw;'" v-for="v in names_to_number">
       <div class="inner_for" v-for="q in v">{{ q }}</div>
     </div>
 
