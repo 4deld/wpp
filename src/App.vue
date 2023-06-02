@@ -2,10 +2,11 @@
 import * as Hangul from 'hangul-js';
 import { ref, onMounted, watch } from 'vue'
 const p1p2_names = ref([''])
-const namestonumber = ref([[]])
+const names_to_number = ref([[], [], [], [], []])
 const s = ref("")
 const key = ref(-1)
 const x = ref(0)
+const idx = ref(0)
 onMounted(() => {
   document.getElementById('0')?.focus()
 })
@@ -85,7 +86,7 @@ function updateinput(e: Event) { //실시간으로 입력하는 한글을 event�
         if (t.length > 1) {
           let tt = Hangul.disassemble(s.value.slice(-2))
           tt[2] = tt[3]
-          tt = tt.slice(0,tt.length-1)
+          tt = tt.slice(0, tt.length - 1)
           t = Hangul.assemble(tt)
         }
         p1p2_names.value[xtov(x.value)] = t
@@ -95,6 +96,13 @@ function updateinput(e: Event) { //실시간으로 입력하는 한글을 event�
       }
       else if (s.value.slice(-1) != s.value.slice(-2, -1)) {
         key.value = 1
+      }
+
+      if (x.value === 0) {
+        let t = Hangul.disassemble(s.value.slice(-1))
+        if (Hangul.isVowel(t[2]) && t.length === 3) {
+          key.value = 0
+        }
       }
     }
     else if (key.value === 1) {
@@ -106,13 +114,13 @@ function updateinput(e: Event) { //실시간으로 입력하는 한글을 event�
       }
       else if (x.value === 0) { //첫번째글자
         let arr = Hangul.disassemble(s.value.slice(-1))
-        if (arr.length > 3) {
-          p1p2_names.value[xtov(x.value)] = Hangul.assemble(arr.slice(0, 3))
+        if (arr.length > 3 && Hangul.isConsonant(arr[2])) { //겹받침인 경우
+          p1p2_names.value[0] = Hangul.assemble(arr.slice(0, 3))
           s.value = s.value.slice(0, s.value.length - 1)
           s.value += arr[3]
         }
         else {
-          p1p2_names.value[xtov(x.value)] = s.value.slice(-1)
+          p1p2_names.value[0] = s.value.slice(-1)
         }
 
       }
@@ -170,17 +178,27 @@ function updateinput(e: Event) { //실시간으로 입력하는 한글을 event�
 
 watch(x, () => {
   setTimeout(() => {
-    document.getElementById(x.value - 1).disabled = 'true'
-    namestonumber.value[0][xtov(x.value - 1)] = transform(p1p2_names.value[xtov(x.value - 1)])
+    document.getElementById(String(x.value - 1)).disabled = 'true'
+    names_to_number.value[0][xtov(x.value - 1)] = transform(p1p2_names.value[xtov(x.value - 1)])
   }, 100)
   if (x.value === 5) {
     setTimeout(() => {
-      document.getElementById(5).disabled = 'true'
-      namestonumber.value[0][5] = transform(p1p2_names.value[5])
+      document.getElementById('5').disabled = 'true'
+      names_to_number.value[0][5] = transform(p1p2_names.value[5])
+      idx.value = 1
     }, 1000)
   }
 })
-
+watch(idx, () => {
+  for (var i = 1; i < 5; i++) {
+    for (var j = 0; j < 6 - i; j++) {
+      names_to_number.value[i][j] = (names_to_number.value[i - 1][j] + names_to_number.value[i - 1][j + 1]) % 10
+    }
+  }
+})
+function redo() {
+  window.location.reload()
+}
 </script>
 
 <template>
@@ -194,17 +212,49 @@ watch(x, () => {
       <input id="2" type="text" :value="p1p2_names[4]" v-on:input="updateinput">
       <input id="5" type="text" :value="p1p2_names[5]" v-on:input="updateinput">
     </div>
-    <div>{{ p1p2_names }}</div>
-    <div>{{ namestonumber }}</div>
-    <div>
-      <div></div>
+    <div class="outer_for" :style="'width: ' + (v.length - 1) * 10 + 'vw;'" v-for="v in names_to_number">
+      <div class="inner_for" v-for="q in v">{{ q }}</div>
     </div>
+
+    <div class="rst" v-if="names_to_number[4][1] != null">
+      <div class="output">
+        <div>{{ p1p2_names[0] }}</div>
+        <div>{{ p1p2_names[2] }}</div>
+        <div>{{ p1p2_names[4] }}</div>
+      </div>
+      <div>님과</div> &nbsp;
+      <div class="output">
+        <div>{{ p1p2_names[1] }}</div>
+        <div>{{ p1p2_names[3] }}</div>
+        <div>{{ p1p2_names[5] }}</div>
+      </div>
+      <div>님의 궁합은</div> &nbsp;
+      <div class="output">
+        <div v-if="names_to_number[4][0] != 0">{{ names_to_number[4][0] }}</div>
+        <div>{{ names_to_number[4][1] }}</div>
+      </div>
+      <div>점!</div>
+    </div>
+  </div>
+  <div v-if="names_to_number[4][1] != null" class="re" @click="redo">다시하기</div>
+  <div class="mobile">
+    <div class="mobiletext">모바일에서는 이용할 수 없습니다</div>
   </div>
 </template>
 
-<style scoped>
+<style>
+body {
+  margin: 0;
+  box-sizing: border-box;
+  width: 100vw;
+  height: 100vh;
+  user-select: none;
+  overflow: hidden;
+}
+
 .title {
-  font-size: 3em;
+  font-size: 4em;
+  margin: 1.8% auto;
 }
 
 #layout {
@@ -221,9 +271,63 @@ watch(x, () => {
 
 input {
   text-align: center;
-  font-size: 2em;
+  font-size: 3em;
   margin: auto;
-  width: 4vw;
-  height: 7vh;
+  width: 5vw;
+  height: 9vh;
+}
+
+.outer_for {
+  display: flex;
+}
+
+.inner_for {
+  display: flex;
+  font-size: 3.5em;
+  margin: 1.8% auto;
+}
+
+.rst {
+  margin-top: 1.8%;
+  display: flex;
+  font-size: 4em;
+}
+
+.output {
+  display: flex;
+}
+
+.re {
+  position: fixed;
+  top: 50vh;
+  right: 10vw;
+  font-size: 3em;
+}
+.mobile{
+    display: none;
+}
+.mobiletext{
+    padding:20px;
+}
+@media (max-width: 912px) {
+    .mobile{
+        display: flex;
+        width: 100vw;
+        height: 100vh;
+        align-items: center;
+        justify-content: center;
+    }
+    #layout{
+        display: none;
+    }
+    .mobiletext{
+        font-size: 26px;
+    }
+}
+
+@media (max-width:600px){
+    .mobiletext{
+        font-size: 18px;
+    }
 }
 </style>
