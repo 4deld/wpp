@@ -25,7 +25,12 @@ const Consonant = {
   "ㅋ": 2,
   "ㅌ": 4,
   "ㅍ": 4,
-  "ㅎ": 4
+  "ㅎ": 4,
+  "ㄲ": 4,
+  "ㅉ": 8,
+  "ㄸ": 6,
+  "ㅃ": 4,
+  "ㅆ": 8,
 };
 const Vowel = {
   "ㅏ": 3,
@@ -155,10 +160,8 @@ function updateinput(e: Event) { //실시간으로 입력하는 한글을 event�
 }
 
 watch(x, () => {
-  setTimeout(() => {
-    document.getElementById(String(x.value - 1)).disabled = 'true'
-    names_to_number.value[0][xtov(x.value - 1)] = transform(p1p2_names.value[xtov(x.value - 1)])
-  }, 100)
+  document.getElementById(String(x.value - 1)).disabled = 'true'
+  names_to_number.value[0][xtov(x.value - 1)] = transform(p1p2_names.value[xtov(x.value - 1)])
   if (x.value === 5) {
     setTimeout(() => {
       document.getElementById('5').disabled = 'true'
@@ -182,6 +185,7 @@ function redo() {
 <template>
   <div id="layout">
     <div class="title">이름 궁합 점수</div>
+    <div class="notice">두 이름을 연속해서 입력해주세요</div>
     <div class="inputs">
       <input id="0" type="text" :value="p1p2_names[0]" v-on:input="updateinput">
       <input id="3" type="text" :value="p1p2_names[1]" v-on:input="updateinput">
@@ -190,7 +194,8 @@ function redo() {
       <input id="2" type="text" :value="p1p2_names[4]" v-on:input="updateinput">
       <input id="5" type="text" :value="p1p2_names[5]" v-on:input="updateinput">
     </div>
-    <div v-if="names_to_number[4][1] != null" class="outer_for" :style="'width: ' + (v.length - 1) * 10 + 'vw;'" v-for="v in names_to_number">
+    <div v-if="names_to_number[4][1] != null" class="outer_for" :style="'width: ' + (v.length - 1) * 10 + 'vw;'"
+      v-for="v in names_to_number">
       <div class="inner_for" v-for="q in v">{{ q }}</div>
     </div>
 

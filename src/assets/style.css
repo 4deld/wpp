@@ -9,9 +9,13 @@ body {
   
   .title {
     font-size: 4em;
-    margin: 1.8% auto;
+    margin: 1.8% auto 1%;
   }
   
+.notice{
+  font-size: 2em;
+}
+
   #layout {
     display: flex;
     flex-direction: column;
